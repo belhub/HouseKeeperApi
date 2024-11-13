@@ -1,0 +1,6 @@
+@HouseKeeperApi_HostAddress = http://localhost:5131
+
+GET {{HouseKeeperApi_HostAddress}}/
+Accept: application/json
+
+###

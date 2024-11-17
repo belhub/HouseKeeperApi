@@ -8,12 +8,30 @@ namespace HouseKeeperApi
     {
         public HouseKeeperMappingProfile()
         {
-            CreateMap<Equipment, EquipmentDto>();
-            CreateMap<House, HouseDto>();   //get House
-            CreateMap<HouseDto, House>().ForMember(dest => dest.Id, opt => opt.Ignore());   // create/update House -ignorowanie ID
-            CreateMap<Issue, IssueDto>();
-            CreateMap<Message, MessageDto>();
-            CreateMap<Room, RoomDto>();
+            CreateMap<Equipment, EquipmentDto>().ReverseMap();
+            CreateMap<EquipmentDto, Equipment>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore());
+
+            CreateMap<House, HouseDto>().ReverseMap();   //get House
+            CreateMap<HouseDto, House>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore());   // create/update House -ignorowanie ID
+
+            CreateMap<Issue, IssueDto>().ReverseMap();
+            CreateMap<IssueDto, Issue>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore());
+
+            CreateMap<Message, MessageDto>().ReverseMap();
+            CreateMap<MessageDto, Message>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore());
+
+            CreateMap<Room, RoomDto>().ReverseMap();
+            CreateMap<RoomDto, Room>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore());
+
+            CreateMap<User, UserByIdDto>().ReverseMap();
+            CreateMap<UserByIdDto, User>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore());
+
         }
     }
 }

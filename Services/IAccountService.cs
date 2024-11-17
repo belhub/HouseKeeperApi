@@ -6,5 +6,7 @@ namespace HouseKeeperApi.Services
     {
         string GenerateJwt(LoginUserDto dto);
         void RegisterUser(RegisterUserDto registerUserDto);
+        int GetUserId();
+        Task<UserByIdDto> GetUserByIdDto(int userId);
     }
 }

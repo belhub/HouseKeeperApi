@@ -1,4 +1,5 @@
-﻿using HouseKeeperApi.Entities;
+﻿using AutoMapper;
+using HouseKeeperApi.Entities;
 using HouseKeeperApi.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -13,12 +14,31 @@ namespace HouseKeeperApi.Services
     {
         private readonly HouseKeeperDbContext _houseKeeperDbContext;
         private readonly IPasswordHasher<User> _passwordHasher;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly AuthenticationSettings _authenticationSettings;
-        public AccountService(HouseKeeperDbContext houseKeeperDbContext, IPasswordHasher<User> passwordHasher, AuthenticationSettings authenticationSettings)
+        private readonly IMapper _mapper;
+        public AccountService(IMapper mapper, HouseKeeperDbContext houseKeeperDbContext, IPasswordHasher<User> passwordHasher, AuthenticationSettings authenticationSettings, IHttpContextAccessor httpContextAccessor)
         {
             _houseKeeperDbContext = houseKeeperDbContext;
             _passwordHasher = passwordHasher;
             _authenticationSettings = authenticationSettings;
+            _httpContextAccessor = httpContextAccessor;
+            _mapper = mapper;
+
+        }
+
+        public async Task<UserByIdDto> GetUserByIdDto(int userId)
+        {
+            try
+            {
+                var user = await _houseKeeperDbContext.Users
+                    .FirstOrDefaultAsync(u => u.Id == userId)
+                    ?? throw new Exception($"Brak usera o Id = {userId}.");
+
+                return _mapper.Map<UserByIdDto>(user);
+            }
+            catch (DbUpdateException ex) { throw new InvalidOperationException("Wystapil problem podczas pobierania usera .", ex); }
+            catch (Exception ex) { throw new Exception("Wystapil nieoczekiwany blad podczas pobierania usera.", ex); }
         }
 
         public void RegisterUser(RegisterUserDto registerUserDto)
@@ -72,6 +92,14 @@ namespace HouseKeeperApi.Services
                 signingCredentials: cred);
             var tokenHandler = new JwtSecurityTokenHandler();
             return tokenHandler.WriteToken(token);
+        }
+
+        public int GetUserId()
+        {
+            // Pobieranie UserId z tokena JWT (dla JWT zazwyczaj jest przechowywane jako "sub")
+            var userId = _httpContextAccessor.HttpContext?.User
+                .FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return userId != null ? int.Parse(userId) : throw new UnauthorizedAccessException("UserId not found");
         }
     }
 }

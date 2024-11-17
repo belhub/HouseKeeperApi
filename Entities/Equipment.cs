@@ -6,7 +6,7 @@
         public string Name { get; set; }
         public int Worth { get; set; }
         public DateOnly DateAdded { get; set; }
-        public bool OwnersProperty { get; set; }
+        public bool BelongToHouse { get; set; }
         public int OwnerId { get; set; }
         public virtual required User Owner { get; set; }
         public int RoomId { get; set; }

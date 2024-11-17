@@ -41,12 +41,21 @@ builder.Services.AddDbContext<HouseKeeperDbContext>(opt =>
     opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
+//builder.Services.AddControllers().AddJsonOptions(options =>
+//{
+//    options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
+//});
+
 builder.Services.AddScoped<HouseSeeder>();
 builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped<IValidator<RegisterUserDto>, RegisterUserDtoValidator>();
+builder.Services.AddScoped<IEqiupmentService, EqiupmentService>();
 builder.Services.AddScoped<IHouseService, HouseService>();
+builder.Services.AddScoped<IIssueService, IssueService>();
+builder.Services.AddScoped<IMessageService, MessageService>();
+builder.Services.AddScoped<IRoomService, RoomService>();
 
 // Dodanie CORS
 builder.Services.AddCors(options =>

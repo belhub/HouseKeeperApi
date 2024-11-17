@@ -4,6 +4,7 @@ using HouseKeeperApi.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HouseKeeperApi.Migrations
 {
     [DbContext(typeof(HouseKeeperDbContext))]
-    partial class HouseKeeperDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241116201957_belongToHouse")]
+    partial class belongToHouse
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -55,7 +58,7 @@ namespace HouseKeeperApi.Migrations
 
                     b.HasIndex("RoomId");
 
-                    b.ToTable("Equipments", (string)null);
+                    b.ToTable("Equipments");
                 });
 
             modelBuilder.Entity("HouseKeeperApi.Entities.House", b =>
@@ -92,7 +95,7 @@ namespace HouseKeeperApi.Migrations
 
                     b.HasIndex("OwnerId");
 
-                    b.ToTable("Houses", (string)null);
+                    b.ToTable("Houses");
                 });
 
             modelBuilder.Entity("HouseKeeperApi.Entities.Issue", b =>
@@ -139,7 +142,7 @@ namespace HouseKeeperApi.Migrations
 
                     b.HasIndex("HouseId");
 
-                    b.ToTable("Issues", (string)null);
+                    b.ToTable("Issues");
                 });
 
             modelBuilder.Entity("HouseKeeperApi.Entities.Message", b =>
@@ -169,7 +172,7 @@ namespace HouseKeeperApi.Migrations
 
                     b.HasIndex("SenderId");
 
-                    b.ToTable("Messages", (string)null);
+                    b.ToTable("Messages");
                 });
 
             modelBuilder.Entity("HouseKeeperApi.Entities.Role", b =>
@@ -186,7 +189,7 @@ namespace HouseKeeperApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Roles", (string)null);
+                    b.ToTable("Roles");
                 });
 
             modelBuilder.Entity("HouseKeeperApi.Entities.Room", b =>
@@ -222,7 +225,7 @@ namespace HouseKeeperApi.Migrations
 
                     b.HasIndex("TenantId");
 
-                    b.ToTable("Rooms", (string)null);
+                    b.ToTable("Rooms");
                 });
 
             modelBuilder.Entity("HouseKeeperApi.Entities.User", b =>
@@ -264,7 +267,7 @@ namespace HouseKeeperApi.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("HouseKeeperApi.Entities.Equipment", b =>

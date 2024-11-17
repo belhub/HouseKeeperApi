@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HouseKeeperApi.Controllers
 {
-    [Route("api/account")]
+    [Route("api/[controller]")]
     [EnableCors("AllowFrontendApp")]  // Włącz CORS dla tego kontrolera  -- dlaczego? bo jwt
     [ApiController]
     public class AccountController : ControllerBase
@@ -30,5 +30,14 @@ namespace HouseKeeperApi.Controllers
             string token = _accountService.GenerateJwt(dto);
             return Ok(token);
         }
+
+        [HttpGet("getById{userId}")]
+        public ActionResult GetUserById([FromRoute] int userId)
+        {
+            var user = _accountService.GetUserByIdDto(userId);
+            return user == null ? NotFound() : Ok(user);
+        }
+        //wyszukiwanie usera po id
+        //zmiana hasła
     }
 }

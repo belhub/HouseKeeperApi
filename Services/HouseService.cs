@@ -23,13 +23,14 @@ namespace HouseKeeperApi.Services
                 var houses = await _houseContext.Houses
                     .Where(h => h.OwnerId == userId)
                     .Include(h => h.Rooms)  // Załadowanie pokoi
-                    .ToListAsync() ?? throw new Exception("Nie znaleziono domu dla użytkownika o podanym iddentyfikatorze");
-                var housesDto = _mapper.Map<List<HouseDto>>(houses);
+                        .ThenInclude(r => r.Equipments) // Załadowanie sprzętu w pokojach
+                        .AsNoTracking()  // Opcjonalnie
+                    .ToListAsync() ?? throw new Exception("Nie znaleziono domu dla uzytkownika o podanym identyfikatorze");
 
-                return housesDto;
+                return _mapper.Map<List<HouseDto>>(houses);
             }
-            catch (DbUpdateException ex) { throw new InvalidOperationException("Wystąpił problem podczas pobierania domu.", ex); }
-            catch (Exception ex) { throw new Exception("Wystąpił nieoczekiwany bład podczas pobierania domu.", ex); }
+            catch (DbUpdateException ex) { throw new InvalidOperationException("Wystapil problem podczas pobierania domu.", ex); }
+            catch (Exception ex) { throw new Exception("Wystapil nieoczekiwany blad podczas pobierania domu.", ex); }
         }
 
         public async Task<HouseDto> GetHouseById(int houseId)
@@ -38,13 +39,14 @@ namespace HouseKeeperApi.Services
             {
                 var houses = await _houseContext.Houses
                     .Include(h => h.Rooms)  // Załadowanie pokoi
-                    .FirstOrDefaultAsync(h => h.Id == houseId) ?? throw new Exception("Nie znaleziono domu o podanym iddentyfikatorze");
-                var houseDto = _mapper.Map<HouseDto>(houses);
+                        .ThenInclude(r => r.Equipments) // Załadowanie sprzętu w pokojach
+                        .AsNoTracking()  // Opcjonalnie
+                    .FirstOrDefaultAsync(h => h.Id == houseId) ?? throw new Exception("Nie znaleziono domu o podanym identyfikatorze");
 
-                return houseDto;
+                return _mapper.Map<HouseDto>(houses);
             }
-            catch (DbUpdateException ex) { throw new InvalidOperationException("Wystąpił problem podczas pobierania domu.", ex); }
-            catch (Exception ex) { throw new Exception("Wystąpił nieoczekiwany błąd podczas pobierania domu.", ex); }
+            catch (DbUpdateException ex) { throw new InvalidOperationException("Wystapil problem podczas pobierania domu.", ex); }
+            catch (Exception ex) { throw new Exception("Wystapil nieoczekiwany blad podczas pobierania domu.", ex); }
         }
 
         public async Task<int> CreateHouse(HouseDto houseDto)
@@ -58,8 +60,8 @@ namespace HouseKeeperApi.Services
 
                 return houseEntity.Id;
             }
-            catch (DbUpdateException ex) { throw new InvalidOperationException("Wystąpił problem podczas tworzenia domu.", ex); }
-            catch (Exception ex) { throw new Exception("Wystąpił nieoczekiwany błąd podczas tworzenia domu.", ex); }
+            catch (DbUpdateException ex) { throw new InvalidOperationException("Wystapil problem podczas tworzenia domu.", ex); }
+            catch (Exception ex) { throw new Exception("Wystapil nieoczekiwany blad podczas tworzenia domu.", ex); }
         }
 
         public async Task<bool> UpdateHouse(int houseId, HouseDto houseDto)
@@ -67,15 +69,15 @@ namespace HouseKeeperApi.Services
             try
             {
                 var house = await _houseContext.Houses
-                    .FirstOrDefaultAsync(h => h.Id == houseId) ?? throw new Exception($"Dom o Id = {houseId} nie został znaleziony.");
+                    .FirstOrDefaultAsync(h => h.Id == houseId) ?? throw new Exception($"Dom o Id = {houseId} nie zostal znaleziony.");
 
                 _mapper.Map(houseDto, house);
 
                 await _houseContext.SaveChangesAsync();
                 return true;
             }
-            catch (DbUpdateException ex) { throw new InvalidOperationException("Wystąpił problem podczas aktualizacji domu.", ex); }
-            catch (Exception ex) { throw new Exception("Wystąpił nieoczekiwany bład podczas aktualizacji domu.", ex); }
+            catch (DbUpdateException ex) { throw new InvalidOperationException("Wystapil problem podczas aktualizacji domu.", ex); }
+            catch (Exception ex) { throw new Exception("Wystapil nieoczekiwany blad podczas aktualizacji domu.", ex); }
         }
 
         public async Task<bool> DeleteHouseById(int houseId)
@@ -92,9 +94,8 @@ namespace HouseKeeperApi.Services
 
                 return true;
             }
-            catch (DbUpdateException ex) { throw new InvalidOperationException("Wystąpił problem podczas usuwania domu.", ex); }
-            catch (Exception ex) { throw new Exception("Wystąpił nieoczekiwany bład podczas usuwania domu.", ex); }
-
+            catch (DbUpdateException ex) { throw new InvalidOperationException("Wystapil problem podczas usuwania domu.", ex); }
+            catch (Exception ex) { throw new Exception("Wystapil nieoczekiwany blad podczas usuwania domu.", ex); }
         }
     }
 }

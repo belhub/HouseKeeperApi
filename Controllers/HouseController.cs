@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace HouseKeeperApi.Controllers
 {
     //działa
-    [Route("api/house")]
+    [Route("api/[controller]")]
     [ApiController] // walidacja
     [Authorize(Roles = "Tenant, Landlord")] //autoryzacja
     public class HouseController : ControllerBase
@@ -19,26 +19,18 @@ namespace HouseKeeperApi.Controllers
             _houseService = houseService;
         }
 
-        [HttpGet("houseId/{id}")]
+        [HttpGet("byHouseId/{id}")]
         public async Task<ActionResult<HouseDto>> GetHouseById([FromRoute] int id)
         {
             var house = await _houseService.GetHouseById(id);
-            if (house == null)
-            {
-                return NotFound();
-            }
-            return Ok(house);
+            return house == null ? NotFound() : Ok(house);
         }
 
-        [HttpGet("userId/{userId}")]
+        [HttpGet("byUserId/{userId}")]
         public async Task<ActionResult<List<HouseDto>>> GetHousesByUserId([FromRoute] int userId)
         {
-            var houses = await _houseService.GetHousesByUserId(userId);
-            if (houses == null)
-            {
-                return NotFound();
-            }
-            return Ok(houses);
+            var houses = await _houseService.GetHousesByUserId(userId); //brakuje houseTenants
+            return houses == null ? NotFound() : Ok(houses);
         }
 
         [HttpPost]

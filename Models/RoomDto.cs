@@ -4,8 +4,8 @@ namespace HouseKeeperApi.Models
 {
     public class RoomDto
     {
-        public required int Id { get; set; }
-        public required string RoomName { get; set; }
+        public int Id { get; set; }
+        public string RoomName { get; set; }
         public int? TenantId { get; set; }
         public DateOnly? StartOfTheRent { get; set; }
         public DateOnly? EndOfTheRent { get; set; }

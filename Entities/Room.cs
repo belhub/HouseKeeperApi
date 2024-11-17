@@ -1,4 +1,6 @@
-﻿namespace HouseKeeperApi.Entities
+﻿using System.Text.Json.Serialization;
+
+namespace HouseKeeperApi.Entities
 {
     public class Room
     {
@@ -11,6 +13,7 @@
         public int? MonthlyCost { get; set; }
         public virtual List<Equipment> Equipments { get; set; } = new List<Equipment>();
         public int HouseId { get; set; }
+        [JsonIgnore]
         public virtual House House { get; set; }
     }
 }

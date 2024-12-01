@@ -9,5 +9,7 @@ namespace HouseKeeperApi.Services
         Task<int> CreateHouse(HouseDto houseDto);
         Task<bool> DeleteHouseById(int houseId);
         Task<bool> UpdateHouse(int houseId, HouseDto houseDto);
+        Task<HouseDto?> GetHouseByTenantId(int tenantId);
+        Task<List<TenantsDto.TenantDto>?> GetHouseTenantsById(int houseId);
     }
 }

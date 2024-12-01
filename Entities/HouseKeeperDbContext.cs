@@ -14,6 +14,9 @@ namespace HouseKeeperApi.Entities
         public DbSet<Room> Rooms { get; set; }
         public DbSet<Issue> Issues { get; set; }
         public DbSet<Message> Messages { get; set; }
+        public DbSet<Transaction> Transactions { get; set; }
+        public DbSet<Schedule> Schedules { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Relacja Issue -> Messages
@@ -52,12 +55,27 @@ namespace HouseKeeperApi.Entities
                 .HasForeignKey(h => h.OwnerId)
                 .OnDelete(DeleteBehavior.NoAction);
 
+
+            modelBuilder.Entity<House>()
+                .HasMany(h => h.Tenants)
+                .WithMany()
+                .UsingEntity<Dictionary<string, object>>(
+                    "HouseTenant",
+                    ht => ht.HasOne<User>().WithMany().HasForeignKey("TenantId").OnDelete(DeleteBehavior.Cascade),
+                    ht => ht.HasOne<House>().WithMany().HasForeignKey("HouseId").OnDelete(DeleteBehavior.Cascade),
+                    ht =>
+                    {
+                        ht.HasKey("HouseId", "TenantId");
+                    }
+                );
+
             // Relacja Equipments -> Room
             modelBuilder.Entity<Room>()
                 .HasMany(r => r.Equipments)
                 .WithOne(e => e.Room)
                 .HasForeignKey(e => e.RoomId)
                 .OnDelete(DeleteBehavior.Cascade);
+
             // Relacja User -> Rooms (brak kaskadowego usuwania)
             modelBuilder.Entity<Room>()
                 .HasOne(r => r.Tenant)
@@ -71,6 +89,53 @@ namespace HouseKeeperApi.Entities
                 .WithMany()
                 .HasForeignKey(e => e.OwnerId)
                 .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<Transaction>(entity =>
+            {
+                entity.HasKey(t => t.Id);
+
+                // Relacja z User (SendFrom)
+                entity.HasOne(t => t.Payer)
+                      .WithMany() // Zakładamy, że User nie ma nawigacji do Transakcji jako "nadawca"
+                      .HasForeignKey(t => t.PayerId)
+                      .OnDelete(DeleteBehavior.NoAction); // Unikamy usuwania użytkownika wraz z transakcją
+
+                // Relacja z User (SendTo)
+                entity.HasOne(t => t.Receiver)
+                      .WithMany() // Zakładamy, że User nie ma nawigacji do Transakcji jako "odbiorca"
+                      .HasForeignKey(t => t.ReceiverId)
+                      .OnDelete(DeleteBehavior.NoAction);
+
+                // Relacja z House
+                entity.HasOne(t => t.House)
+                      .WithMany()
+                      .HasForeignKey(t => t.HouseId)
+                      .OnDelete(DeleteBehavior.Cascade); // Usunięcie domu usuwa związane transakcje
+
+                entity.Property(t => t.Status)
+                      .IsRequired()
+                      .HasMaxLength(50);
+            });
+
+            modelBuilder.Entity<Schedule>(entity =>
+            {
+                entity.HasOne(s => s.House)
+                    .WithMany()
+                    .HasForeignKey(s => s.HouseId)
+                    .OnDelete(DeleteBehavior.Cascade); // Usunięcie domu usuwa związane grafiki
+
+                entity.HasOne(s => s.User)
+                .WithMany()
+                .HasForeignKey(s => s.UserId)
+                .OnDelete(DeleteBehavior.NoAction);
+            });
+
+            modelBuilder.Entity<Notification>()
+                .HasOne(n => n.User)
+                .WithMany()
+                .HasForeignKey(n => n.UserId)
+                .OnDelete(DeleteBehavior.Cascade); // Usenięcie Usera usuwa jego notyfikacje
+
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

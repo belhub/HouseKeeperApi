@@ -13,7 +13,7 @@
         public virtual List<Message> Messages { get; set; }
         public int CreatorId { get; set; }
         public virtual User Creator { get; set; }
-        public DateOnly CreationDate { get; set; }
+        public DateTime CreationDate { get; set; }
         public List<int> ViewedBy { get; set; }
     }
 }

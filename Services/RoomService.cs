@@ -35,10 +35,13 @@ namespace HouseKeeperApi.Services
         {
             try
             {
+                var tenant = await _houseContext.Users.FirstOrDefaultAsync(u => u.Id == ownerId);
                 var rooms = await _houseContext.Rooms
                     .Include(r => r.House)
                     .Include(r => r.Equipments)
-                    .Where(r => r.TenantId == ownerId || r.TenantId == null)
+                    .Where(r => (r.TenantId == ownerId || r.TenantId == null)
+                        && r.House.Tenants.Contains(tenant))
+                    .AsNoTracking()
                     .ToListAsync()
                     ?? throw new KeyNotFoundException($"Pokoje dla usera o Id = {ownerId} nie zostal znaleziony.");
 

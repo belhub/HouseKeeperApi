@@ -7,7 +7,7 @@ namespace HouseKeeperApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Tenat, Landlord")]
+    [Authorize(Roles = "Tenant, Landlord")]
     public class EquipmentController : Controller
     {
         private readonly IEqiupmentService _eqiupmentService;
@@ -17,10 +17,10 @@ namespace HouseKeeperApi.Controllers
             _eqiupmentService = eqiupmentService;
         }
 
-        [HttpGet("byHouseId/{houseId}")]
-        public async Task<ActionResult<List<EquipmentDto>>> GetEquipmentsByHouseId([FromRoute] int houseId)
+        [HttpGet("byRoomId/{roomId}")]
+        public async Task<ActionResult<List<EquipmentDto>>> GetEquipmentsByRoomId([FromRoute] int roomId)
         {
-            var equipments = await _eqiupmentService.GetAllEquipmentByHouseId(houseId);
+            var equipments = await _eqiupmentService.GetAllEquipmentByRoomId(roomId);
             return equipments == null ? NotFound() : Ok(equipments);
         }
 

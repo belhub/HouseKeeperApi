@@ -7,7 +7,7 @@ namespace HouseKeeperApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Tenat, Landlord")]
+    [Authorize(Roles = "Tenant, Landlord")]
     public class IssueController : ControllerBase
     {
         private readonly IIssueService _issueService;

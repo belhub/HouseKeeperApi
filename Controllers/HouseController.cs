@@ -33,6 +33,20 @@ namespace HouseKeeperApi.Controllers
             return houses == null ? NotFound() : Ok(houses);
         }
 
+        [HttpGet("byTenantId/{tenantId}")]
+        public async Task<ActionResult<List<HouseDto>>> GetHousesByTenantId([FromRoute] int tenantId)
+        {
+            var houses = await _houseService.GetHouseByTenantId(tenantId); //brakuje houseTenants
+            return houses == null ? NotFound() : Ok(houses);
+        }
+
+        [HttpGet("houseTenants/{houseId}")]
+        public async Task<ActionResult<List<HouseDto>>> GetHouseTenantsByHouseId([FromRoute] int houseId)
+        {
+            var tenants = await _houseService.GetHouseTenantsById(houseId); //brakuje houseTenants
+            return tenants == null ? NotFound() : Ok(tenants);
+        }
+
         [HttpPost]
         [Authorize(Roles = "Landlord")]
         public async Task<ActionResult> CreateHouse([FromBody] HouseDto houseDto)

@@ -1,4 +1,5 @@
 ﻿using HouseKeeperApi.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace HouseKeeperApi
 {
@@ -22,6 +23,40 @@ namespace HouseKeeperApi
                 //    _dbContext.Users.AddRange(users);
                 //    _dbContext.SaveChanges();//entity powinien zapisać dane w kontekście bazy danych
                 //}
+            }
+        }
+
+        public async Task RotateSchedule()
+        {
+            var currentDate = DateOnly.FromDateTime(DateTime.UtcNow);
+
+            var schedule = await dbContext.Schedules
+                .Where(s => s.WeekEndDate < currentDate)
+                .ToListAsync() ?? throw new Exception("nie mozna pobrac listy grafikow");
+
+            if (schedule != null)
+            {
+                var groupedSchedules = schedule.GroupBy(s => s.HouseId);
+
+                foreach (var group in groupedSchedules)
+                {
+                    var tasks = group.ToList();
+
+                    var rotatedTasks = tasks.Select((task, index) => new
+                    {
+                        Schedule = task,
+                        NewTaskName = tasks[(index - 1 + tasks.Count) % tasks.Count].TaskName
+                    })
+                    .ToList();
+
+                    // Zaktualizowanie TaskName w oryginalnych obiektach
+                    foreach (var rotatedTask in rotatedTasks)
+                    {
+                        rotatedTask.Schedule.TaskName = rotatedTask.NewTaskName;
+                    }
+                }
+
+                await dbContext.SaveChangesAsync();
             }
         }
 

@@ -17,10 +17,17 @@ namespace HouseKeeperApi.Controllers
             _accountService = accountService;
         }
 
-        [HttpPost("register")]
-        public ActionResult Register([FromBody] RegisterUserDto dto)
+        [HttpPost("registerTenant")]
+        public async Task<ActionResult> RegisterTenant([FromBody] RegisterTenantDto dto)
         {
-            _accountService.RegisterUser(dto);
+            await _accountService.RegisterTenant(dto);
+            return Ok();
+        }
+
+        [HttpPost("register")]
+        public async Task<ActionResult> Register([FromBody] RegisterUserDto dto)
+        {
+            await _accountService.RegisterUser(dto);
             return Ok();
         }
 
@@ -31,13 +38,20 @@ namespace HouseKeeperApi.Controllers
             return Ok(token);
         }
 
-        [HttpGet("getById{userId}")]
-        public ActionResult GetUserById([FromRoute] int userId)
+        [HttpGet("getById/{userId}")]
+        public async Task<ActionResult<UserByIdDto>> GetUserById([FromRoute] int userId)
         {
-            var user = _accountService.GetUserByIdDto(userId);
+            var user = await _accountService.GetUserByIdDto(userId);
             return user == null ? NotFound() : Ok(user);
         }
-        //wyszukiwanie usera po id
-        //zmiana hasła
+
+
+        [HttpPost("changePassword")]
+        public async Task<ActionResult> ChangePassword([FromBody] ChangePasswordDto changePasswordDto)
+        {
+            var passowrdChanged = await _accountService.ChangePassword(changePasswordDto);
+            return passowrdChanged ? Ok() : NotFound();
+        }
+        // zmiana hasła
     }
 }

@@ -56,6 +56,14 @@ builder.Services.AddScoped<IHouseService, HouseService>();
 builder.Services.AddScoped<IIssueService, IssueService>();
 builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<IRoomService, RoomService>();
+builder.Services.AddScoped<ITrasnsactionService, TrasnsactionService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+builder.Services.AddScoped<IEmailService, EmailService>();
+
+// Sprawdzanie grafików po dacie i automatyczna rotacja
+builder.Services.AddHostedService<CheckScheduleBackgroundService>();
 
 // Dodanie CORS
 builder.Services.AddCors(options =>
@@ -71,14 +79,13 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Dodanie inicjalizacji danych z RestaurantSeeder
+// Dodanie inicjalizacji danych z HouseSeeder
 using (var scope = app.Services.CreateScope())// Tworzymy nowy zakres (scope) dla us³ug DI
 {
-    var seeder = scope.ServiceProvider.GetService<HouseSeeder>();// Uzyskujemy instancjê RestaurantSeeder
+    var seeder = scope.ServiceProvider.GetService<HouseSeeder>();// Uzyskujemy instancjê HouseSeeder
     seeder?.Seed();//Wywo³ujemy metode Seed()
+    await seeder?.RotateSchedule();
 }
-
-// W³¹czenie u¿ywania CORS
 
 // Configure the HTTP request pipeline.
 app.UseAuthentication();

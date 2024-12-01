@@ -21,6 +21,7 @@ namespace HouseKeeperApi.Services
             try
             {
                 var messages = await _houseContext.Messages
+                    .Include(m => m.Sender) // Załadowanie danych o użytkowniku
                     .Where(m => m.IssueId == issueId)
                     .OrderBy(m => m.SendDate)
                     .ToListAsync()

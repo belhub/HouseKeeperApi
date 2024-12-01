@@ -17,7 +17,7 @@ namespace HouseKeeperApi.Services
         }
 
         // Pobieranie wszystkich elementów Equipment na podstawie roomId
-        public async Task<List<EquipmentDto>> GetAllEquipmentByHouseId(int roomId)
+        public async Task<List<EquipmentDto>> GetAllEquipmentByRoomId(int roomId)
         {
             try
             {

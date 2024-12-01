@@ -55,7 +55,7 @@ namespace HouseKeeperApi.Migrations
 
                     b.HasIndex("RoomId");
 
-                    b.ToTable("Equipments", (string)null);
+                    b.ToTable("Equipments");
                 });
 
             modelBuilder.Entity("HouseKeeperApi.Entities.House", b =>
@@ -92,7 +92,7 @@ namespace HouseKeeperApi.Migrations
 
                     b.HasIndex("OwnerId");
 
-                    b.ToTable("Houses", (string)null);
+                    b.ToTable("Houses");
                 });
 
             modelBuilder.Entity("HouseKeeperApi.Entities.Issue", b =>
@@ -102,6 +102,9 @@ namespace HouseKeeperApi.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreationDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("CreatorId")
                         .HasColumnType("int");
@@ -139,7 +142,7 @@ namespace HouseKeeperApi.Migrations
 
                     b.HasIndex("HouseId");
 
-                    b.ToTable("Issues", (string)null);
+                    b.ToTable("Issues");
                 });
 
             modelBuilder.Entity("HouseKeeperApi.Entities.Message", b =>
@@ -169,7 +172,31 @@ namespace HouseKeeperApi.Migrations
 
                     b.HasIndex("SenderId");
 
-                    b.ToTable("Messages", (string)null);
+                    b.ToTable("Messages");
+                });
+
+            modelBuilder.Entity("HouseKeeperApi.Entities.Notification", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("IssueNotification")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("TransactionNotification")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("HouseKeeperApi.Entities.Role", b =>
@@ -186,7 +213,7 @@ namespace HouseKeeperApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Roles", (string)null);
+                    b.ToTable("Roles");
                 });
 
             modelBuilder.Entity("HouseKeeperApi.Entities.Room", b =>
@@ -222,7 +249,88 @@ namespace HouseKeeperApi.Migrations
 
                     b.HasIndex("TenantId");
 
-                    b.ToTable("Rooms", (string)null);
+                    b.ToTable("Rooms");
+                });
+
+            modelBuilder.Entity("HouseKeeperApi.Entities.Schedule", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("HouseId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TaskName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<DateOnly>("WeekEndDate")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly>("WeekStartDate")
+                        .HasColumnType("date");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("HouseId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Schedules");
+                });
+
+            modelBuilder.Entity("HouseKeeperApi.Entities.Transaction", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("HouseId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PayerId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ReceiverId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("TransacitonDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("Value")
+                        .HasColumnType("decimal(10, 2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("HouseId");
+
+                    b.HasIndex("PayerId");
+
+                    b.HasIndex("ReceiverId");
+
+                    b.ToTable("Transactions");
                 });
 
             modelBuilder.Entity("HouseKeeperApi.Entities.User", b =>
@@ -264,7 +372,22 @@ namespace HouseKeeperApi.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("HouseTenant", b =>
+                {
+                    b.Property<int>("HouseId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
+                    b.HasKey("HouseId", "TenantId");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("HouseTenant");
                 });
 
             modelBuilder.Entity("HouseKeeperApi.Entities.Equipment", b =>
@@ -335,6 +458,17 @@ namespace HouseKeeperApi.Migrations
                     b.Navigation("Sender");
                 });
 
+            modelBuilder.Entity("HouseKeeperApi.Entities.Notification", b =>
+                {
+                    b.HasOne("HouseKeeperApi.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("HouseKeeperApi.Entities.Room", b =>
                 {
                     b.HasOne("HouseKeeperApi.Entities.House", "House")
@@ -353,6 +487,52 @@ namespace HouseKeeperApi.Migrations
                     b.Navigation("Tenant");
                 });
 
+            modelBuilder.Entity("HouseKeeperApi.Entities.Schedule", b =>
+                {
+                    b.HasOne("HouseKeeperApi.Entities.House", "House")
+                        .WithMany()
+                        .HasForeignKey("HouseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HouseKeeperApi.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("House");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("HouseKeeperApi.Entities.Transaction", b =>
+                {
+                    b.HasOne("HouseKeeperApi.Entities.House", "House")
+                        .WithMany()
+                        .HasForeignKey("HouseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HouseKeeperApi.Entities.User", "Payer")
+                        .WithMany()
+                        .HasForeignKey("PayerId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("HouseKeeperApi.Entities.User", "Receiver")
+                        .WithMany()
+                        .HasForeignKey("ReceiverId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("House");
+
+                    b.Navigation("Payer");
+
+                    b.Navigation("Receiver");
+                });
+
             modelBuilder.Entity("HouseKeeperApi.Entities.User", b =>
                 {
                     b.HasOne("HouseKeeperApi.Entities.Role", "Role")
@@ -362,6 +542,21 @@ namespace HouseKeeperApi.Migrations
                         .IsRequired();
 
                     b.Navigation("Role");
+                });
+
+            modelBuilder.Entity("HouseTenant", b =>
+                {
+                    b.HasOne("HouseKeeperApi.Entities.House", null)
+                        .WithMany()
+                        .HasForeignKey("HouseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HouseKeeperApi.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("HouseKeeperApi.Entities.House", b =>

@@ -9,11 +9,13 @@ namespace HouseKeeperApi.Services
     {
         private readonly HouseKeeperDbContext _houseContext;
         private readonly IMapper _mapper;
+        private readonly INotificationService _notificationService;
 
-        public IssueService(HouseKeeperDbContext houseKeeperContext, IMapper mapper)
+        public IssueService(HouseKeeperDbContext houseKeeperContext, IMapper mapper, INotificationService notificationService)
         {
             _houseContext = houseKeeperContext;
             _mapper = mapper;
+            _notificationService = notificationService;
         }
 
         // Pobieranie listy Issue po userId bez Messages
@@ -22,24 +24,12 @@ namespace HouseKeeperApi.Services
             try
             {
                 var issues = await _houseContext.Issues
-                    .Where(i => i.CreatorId == userId)
-                    .Select(i => new IssueDto
-                    {
-                        Id = i.Id,
-                        Title = i.Title,
-                        HouseId = i.HouseId,
-                        Priority = i.Priority,
-                        ParticipantsName = i.ParticipantsName,
-                        ParticipantsId = i.ParticipantsId,
-                        Status = i.Status,
-                        CreatorId = i.CreatorId,
-                        CreationDate = i.CreationDate,
-                        ViewedBy = i.ViewedBy
-                    })
+                    .Where(i => i.CreatorId == userId || i.ParticipantsId.Contains(userId))
+                    .OrderByDescending(i => i.Messages.Any() ? i.Messages.Max(m => m.SendDate) : i.CreationDate)
                     .ToListAsync()
                     ?? throw new Exception($"Wątki dla usera o Id = {userId} nie zostały znalezione.");
 
-                return issues;
+                return _mapper.Map<List<IssueDto>>(issues);
             }
             catch (DbUpdateException ex) { throw new InvalidOperationException("Wystąpił problem podczas pobierania wątków.", ex); }
             catch (Exception ex) { throw new Exception("Wystąpił nieoczekiwany bład podczas pobierania wątków.", ex); }
@@ -66,6 +56,30 @@ namespace HouseKeeperApi.Services
         {
             try
             {
+                foreach (var userId in issueDto.ParticipantsId)
+                {
+                    var iosNotificationExist = await _notificationService.GetNotificationsForUserId(userId);
+
+                    if (iosNotificationExist != null)
+                    {
+                        var notificationDto = new NotificationDto
+                        {
+                            UserId = userId,
+                            IssueNotification = true
+                        };
+                        await _notificationService.UpdateNotification(notificationDto);
+                    }
+                    else
+                    {
+                        var notificationDto = new NotificationDto
+                        {
+                            UserId = userId,
+                            TransactionNotification = false,
+                            IssueNotification = true
+                        };
+                        await _notificationService.CreateNotification(notificationDto);
+                    }
+                }
                 var issueEntity = _mapper.Map<Issue>(issueDto);
                 await _houseContext.Issues.AddAsync(issueEntity);
                 await _houseContext.SaveChangesAsync();

@@ -11,6 +11,6 @@
         public string City { get; set; }
         public string PostalCode { get; set; }
         public virtual List<Room> Rooms { get; set; } = new List<Room>();
-
+        public virtual List<User> Tenants { get; set; } = new List<User>();
     }
 }

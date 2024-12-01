@@ -9,7 +9,6 @@
         public string ConfirmPassword { get; set; }
         public int Phone { get; set; }
         public DateTime? DateOfBirth { get; set; }
-        public int RoleId { get; set; } = 1;
-
+        public int RoleId { get; set; } = 2;
     }
 }

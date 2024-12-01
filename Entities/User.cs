@@ -15,5 +15,8 @@ namespace HouseKeeperApi.Entities
         public string PasswordHash { get; set; }
         public int RoleId { get; set; }
         public virtual Role Role { get; set; }
+        //public virtual List<HouseTenant> HouseTenants { get; set; } = new();
+        // Relacja Many-to-Many do Domów jako Tenant
+        //public virtual ICollection<House> Houses { get; set; } = new List<House>();
     }
 }

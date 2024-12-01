@@ -2,6 +2,7 @@
 using HouseKeeperApi.Entities;
 using HouseKeeperApi.Models;
 using Microsoft.EntityFrameworkCore;
+using static HouseKeeperApi.Models.TenantsDto;
 
 namespace HouseKeeperApi.Services
 {
@@ -44,6 +45,41 @@ namespace HouseKeeperApi.Services
                     .FirstOrDefaultAsync(h => h.Id == houseId) ?? throw new Exception("Nie znaleziono domu o podanym identyfikatorze");
 
                 return _mapper.Map<HouseDto>(houses);
+            }
+            catch (DbUpdateException ex) { throw new InvalidOperationException("Wystapil problem podczas pobierania domu.", ex); }
+            catch (Exception ex) { throw new Exception("Wystapil nieoczekiwany blad podczas pobierania domu.", ex); }
+        }
+
+        public async Task<HouseDto?> GetHouseByTenantId(int tenantId)
+        {
+            try
+            {
+                var house = await _houseContext.Houses
+                .Include(h => h.Owner)
+                .FirstOrDefaultAsync(h => h.Tenants.Any(t => t.Id == tenantId));
+
+                return house != null ? _mapper.Map<HouseDto>(house) : null;
+            }
+            catch (DbUpdateException ex) { throw new InvalidOperationException("Wystapil problem podczas pobierania domu.", ex); }
+            catch (Exception ex) { throw new Exception("Wystapil nieoczekiwany blad podczas pobierania domu.", ex); }
+        }
+
+        public async Task<List<TenantDto>?> GetHouseTenantsById(int houseId)
+        {
+            try
+            {
+                var tenants = await _houseContext.Houses
+                .Where(h => h.Id == houseId)
+                .SelectMany(h => h.Tenants)
+                .Select(t => new TenantDto
+                {
+                    TenantId = t.Id,
+                    TenantName = t.Name,
+                    TenantSurname = t.Surname
+                })
+                .ToListAsync();
+
+                return tenants ?? null;
             }
             catch (DbUpdateException ex) { throw new InvalidOperationException("Wystapil problem podczas pobierania domu.", ex); }
             catch (Exception ex) { throw new Exception("Wystapil nieoczekiwany blad podczas pobierania domu.", ex); }
